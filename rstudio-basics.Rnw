@@ -1,0 +1,406 @@
+% !TeX program = XeLaTeX
+
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage[raggedright, compact]{titlesec}
+% \userpackage[compact]{titlesec}
+\restylefloat{table}
+%\checkboxchar{$\Box$}
+%\printanswers
+\usepackage{fontspec}
+\defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+\setmainfont{Helvetica}
+\usepackage{enumitem}
+\usepackage[toc, page]{appendix}
+\usepackage{csquotes}
+
+% for making the directory structure 
+\usepackage{dirtree}
+
+% to create TOC but don't number the sections
+\setcounter{secnumdepth}{0}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=darkgray,
+    filecolor=magenta,      
+    urlcolor=blue,
+}
+
+\usepackage{tikz}
+\usetikzlibrary{shadows}
+
+\newcommand*\keystroke[1]{%
+  \tikz[baseline=(key.base)]
+    \node[%
+      draw,
+      fill=white,
+      drop shadow={shadow xshift=0.25ex,shadow yshift=-0.25ex,fill=black,opacity=0.75},
+      rectangle,
+      rounded corners=2pt,
+      inner sep=1pt,
+      line width=0.5pt,
+      font=\scriptsize\sffamily
+    ](key) {#1\strut}
+  ;
+}
+
+
+\setstretch{1.1}
+\setlength{\columnsep}{-6cm}
+\setlist[itemize]{noitemsep, topsep=0pt}
+\setlist[enumerate]{noitemsep, topsep=0pt}
+\setlength{\parskip}{6pt}%
+
+
+\parindent=0pt
+\title{RStudio Basics}
+\author{Gene Ho}
+\date{rev. \today}
+
+
+\begin{document}
+
+<<include = F>>=
+library(knitr)
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines)==1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
+@
+
+
+\noindent
+\vspace{-5em}
+{\let\newpage\relax\maketitle}
+\tableofcontents
+\thispagestyle{headandfoot}
+
+\section{Introduction}
+
+\section{Installation}
+\subsection{R and RStudio Desktop}
+
+For more detailed instructions, go to this \href{https://rstudio-education.github.io/hopr/starting.html}{link.} 
+
+\begin{enumerate}
+
+\item Download R from \href{https://cloud.r-project.org/}{CRAN} for your specific operating system (e.g. Windows or macOS). The most recent release as of March 2021 is 4.0.4 (Lost Library Book). The version of R that you install does not really matter as long as it is above 4.0. 
+
+Fun Fact: R versions are named after lines from Peanuts/Charlie Brown!
+
+\item Download and install R Studio Desktop from \href{https://rstudio.com/products/rstudio/download/#download}{RStudio}. RStudio Desktop is the program that you will use to actually code in R. 
+
+\end{enumerate}
+
+\subsection{RStudio Desktop Dependencies}
+
+When opening RStudio Desktop for the first time, you may be asked to install additional software. Depending on what programs you have, some, none or even all of this part may apply to you. 
+
+Between each step, allow the installation to complete before proceeding to the next step. 
+
+First, open RStudio Desktop.
+
+\begin{enumerate}
+
+\item If a pop-up appears asking you to install \texttt{git}, click \emph{Install}. It is not necessary to install all of Xcode (if asked). 
+
+\item Near the top of the Source (top left box), there should be a bar that says that the \texttt{knitr} package is not installed. Click \emph{Install}.
+
+\end{enumerate}
+
+RStudio Desktop allows you to "knit" or save your R Markdown files to other file formats. You can knit to HTML, DOCX (Microsoft Word), and PDF. In order to knit to PDF, you will need to make sure you have \LaTeX\ installed. First test if you can already knit to PDF. 
+
+\begin{enumerate}
+
+\item Create a new R Markdown file by going to File > New File > R Markdown...
+
+\item Select the PDF button and click OK. 
+
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{imgs/create-pdf.png}
+\end{center}
+
+\item Click \emph{Knit} in the inner toolbar, under all of the tabs with your open files.
+
+\begin{center}
+\includegraphics{imgs/knit.png}
+\end{center}
+
+\item If the PDF is created successfully, you're done with the technical installation of R!
+
+  \begin{enumerate}
+  
+  \item If the creation of the PDF fails, proceed to the next section to install appropriate libraries. 
+  
+  \end{enumerate}
+
+\end{enumerate}
+
+
+\subsection{Installing \LaTeX{} to Export to PDF}
+
+You will need to have a \LaTeX{} package installed in order to knit to PDF. \LaTeX{} is a document preparation system similar to Microsoft Word and Apple Pages. It is what RStudio uses to generate text in PDF documents.
+
+In RStudio,
+
+\begin{enumerate}
+
+\item In the console, enter \texttt{tinytex::install\_tinytex()}. The \texttt{tinytex} package should automatically install and configure your computer to knit to PDF.
+
+\item Wait for the installation to complete. It might take a while.
+
+\item If the installation fails, install an external program with all of these libraries: \href{https://miktex.org/}{MikTex for Windows} or \href{https://tug.org/mactex/}{MacTex for macOS}.
+
+  \begin{itemize}
+
+    \item MacTex is a fairly large program to install at roughly 4GB as it contains "all files most users ever need." Thus, you won't have to learn how to search for and install \LaTeX\ packages. However, if space is a limitation, \href{http://www.tug.org/mactex/morepackages.html}{BasicTeX} is only 80MB and only contains the bare minimum for \LaTeX{} to run.
+
+    \item If your installation still fails \textbf{and} you're using a mac, go to Appendix \ref{appendix:macos-error}, to troubleshoot this error.
+
+  \end{itemize}
+
+\end{enumerate}
+
+
+\section{Libraries and Packages}
+
+Packages (e.g. \texttt{ggplot2}, \texttt{dplyr}, \texttt{stats}) are  collections of functions that you can run in R. Functions are the codes that you can call and run in R that do "stuff." People can contribute their own code to further improve the functionality of R. As for the distinction between packages and libraries:
+
+\begin{displayquote}[Hadley Wickham (@hadleywickham) December 8, 2014]
+
+@ijlyttle a package is a like a book, a library is like a library; you use \texttt{library()} to check a package out of the library \#rsats
+
+\end{displayquote}
+
+
+\subsection{Using Libraries}
+
+At the beginning of every R session, you will need to reload all of the appropriate packages for your script. Every time you close R, it will remove all of your previously loaded packages to free up memory. This is why you typically see multiple calls to the \texttt{library()} function at the top of every script.
+
+This is how you load packages into your R session.
+
+<<tidy = TRUE>>=
+# notice package name is NOT quoted
+library(tidyverse)
+@
+
+As seen above, sometimes you will see mentions of "conflicts" in the functions. This just means that the loaded packages have functions with the same name, so when you don't name a package when you're calling a function, it will default to the function that masked the other. Generally, you don't have to worry about this warning. However, if you find that a function is getting called from the wrong package, it might be because it's masked by another one. This is a case where order of package loading matters.
+
+In the example above, \texttt{tidyverse} masks \texttt{stats::filter()} and \texttt{stats::lag()}. In order to call a function from a specific package, use the syntax \texttt{package::function()} (e.g. \texttt{dplyr::filter()}).
+
+
+\subsection{Installing Packages}
+
+If you run into one of these errors, it likely means you don't have the package installed.
+
+<<error = TRUE>>=
+library(functions)
+# and you're sure you spelled the function correctly
+# double check by running ??function_here
+function_here()
+@
+
+To install the package, run \texttt{install.packages('quoted\_name')} in your console. You should only have to do this one time per package.
+
+<<eval = F>>=
+# quotations are required!
+# it will give you an error if you don't!
+install.packages('tidyverse')
+@
+
+
+
+\section{Managing Your Files}
+
+\subsection{Downloading}
+
+When you download files from bCourses, they will usually be downloaded into your Downloads folder. Usually they will have a path of: 
+
+\begin{itemize}
+
+\item macOS: /Users/SomeUser/Downloads/
+\item Windows: C:\textbackslash Users\textbackslash SomeUser\textbackslash Downloads\textbackslash
+
+\end{itemize}
+
+Notice the difference in direction of the slashes in each of the slashes in the folder paths. Regardless of what operating system you use, you must use forward slashes--the one near the right shift key and not the one under the backspace key. This means in Windows, if you copy the file path, you will need to replace the backslashes with forward slashes. I usually do this \keystroke{Ctrl} + \keystroke{F}, finding "\textbackslash", replacing it with "\slash", and clicking the right "All" button to replace all. 
+
+\subsection{R Project Files}
+R Project files (which end in '.RProj) are a convenient way to manage and compartmentalize your files. When you \href{https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects}{create an R Project}, you can avoid many headaches around file management and paths, your environment which contains all of your variables and functions, etc.
+
+I would suggest creating an R Project file for each class or project that you're working on. This will ensure you don't mix up your work between various projects.
+
+\begin{enumerate}
+  \item File > New Project
+  \item Click \emph{'New Directory'}, to create a folder to house this R Project file.
+    \begin{itemize}
+      \item If you've already created a folder to put your R Project file in, click \emph{'Existing Directory'}
+    \end{itemize}
+  \item Click \emph{'New Project'}
+  \item Name your project (e.g. "PHW142") and choose where you want to create your R Project and associated files.
+\end{enumerate}
+
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{imgs/rproj.png}
+\end{center}
+
+\subsection{File Paths}
+
+Assume my folder structure looks like this:
+
+\dirtree{%
+.1 ./ph142 (main folder).
+.2 phw142.rproj.
+.2 sf-housing-prices.csv.
+.2 code.
+.3 hw01.rmd.
+.3 us\_births\_2019-2020.csv.
+.2 data.
+.3 toxic-ink.xlsx.
+}
+
+Being intentional about organizing your files for this course can make your coding experience smoother and less headache inducing. We recommend creating a folder on your computer specifically for this class. Within the course folder, you are free to organize your folders/files how you wish. I would suggest either the schema above with code and data folders, or one with a folder for each assignment.
+
+\dirtree{%
+.1 ./ph142 (main folder).
+.2 phw142.rproj.
+.2 hw01.
+.3 hw01.rmd.
+.3 us\_births\_2019-2020.csv.
+.2 hw02.
+.3 hw02.r.
+.3 toxic-ink.xlsx.
+}
+
+Tip: Using leading 0's with sequentially numbered folders/files will ensure they remain in order when you get to >9 files. If you don't use leading 0's your files may get sorted: file1.r, file10.r, file11.r, file2.r, as periods have higher sort priority compared to letters and numbers.
+
+
+\subsubsection{Relative File Paths}
+
+Navigate to the course folder you created in the previous section and open the R Project file. As you continue to use R Projects, you may notice the following things:
+
+Once you open R, you can tell what project you're in by looking in the top right corner. If you are in a project, it will say "Project: [project name]." If you are not in a project, then it will say "Project: (None)"
+
+You can specify your files relative to the \texttt{Rproj} file. That is why it is a good idea to keep related files, like data sets, scripts in the same folder or subfolders of the R Project folder so you won't have to type out the file path every time. You can always specify a full or absolute file path instead of a relative one. 
+
+To find what your working directory is: 
+
+<<working-dir>>=
+getwd()
+@
+
+So in my case, I can specify all of my file paths relative to \Sexpr{getwd()}, which is my working directory. 
+
+Assume I have the first folder structure above and I want to import sf-housing-prices.csv. The relative version only requires me to include the parts of the path after my working directory.
+
+<<output.lines = 5>>=
+# long version 
+read.csv('/Users/geneho/OneDrive/Berkeley/Course Materials/PHW142/sf-housing-prices.csv')
+
+# short version 
+read.csv('sf-housing-prices.csv')
+@
+
+To find a file in a subfolder, type the subfolder's name proceded with a forward slash before the file name. 
+<<output.lines = 5>>=
+read.csv('data/us_births_2019-2020.csv')
+@
+
+
+You can also pull up a menu of folders/files in your working directory by pressing tab when you're between two quotes. There you can select the file you want and R Studio will automatically place the relative file path. If your file is in a sub-subfolder, when you're in the tabbed menu, select the folder your file is in and click enter. The folder name should populate into the code. Press tab again to pull up another menu with files in that subfolder. Repeat as necessary. 
+
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{imgs/get-files.png}
+\includegraphics[width=0.7\columnwidth]{imgs/get-files-2.png}
+\end{center}
+
+\subsection{Common File Types}
+
+To read in different file types, you can either type it into the console/source, or use the "Import Dataset" button in the environment pane. Using the import button will generate the code for you, but is likely slower than just writing out the code yourself. 
+
+\subsubsection{Comma Separated Value (CSV) Files}
+
+This is typically the most common data format I've encountered. This is simply a text file that separates data in columns with a comma and row with a new line. Similarly there are tab-separated value files (TSV), which separate each column with a tab. 
+
+To read in csv files, 
+
+<<eval = F>>=
+# base r
+read.csv('sf-housing-prices.csv')
+
+# if you have readr/tidyverse installed, this can actually be faster!
+read_csv('sf-housing-prices.csv')
+@
+
+\subsubsection{Excel Files}
+
+Excel files usually end with XLS or XLSX and can't be read in by base R or tidyverse. You have to use the \texttt{readxl} package. 
+
+<<eval = F>>=
+library(readxl)
+
+read_xlsx('data/toxic_ink.xlsx')
+@
+
+\subsection{The Import Utility}
+
+Near the top of the Environment pane, there is a "Import Dataset" button, which you can use to import various file types. What files appear in this menu depends on the packages you have installed (see above; e.g. \texttt{readr} and \texttt{readxl}). The import utility provides an interface for you to generate code and import data into your R session. 
+
+\begin{center}
+\includegraphics[width=0.7\columnwidth]{imgs/import-utility.png}
+\end{center}
+
+If you decide to use the import utility, over writing the import code yourself, remember to copy the import code at the bottom of the window that appears and paste it into your script or Rmd. If you forget to do this, you will have to use the import utility every time your environment is cleared or R session is restarted. By putting this code in your script, it will be easier for you to run (and not have to worry about debugging and finding the file) or, if you decide to "Run All," it will read that code and import it for you. 
+
+\begin{figure*}[htp]
+    \centering
+    \begin{subfigure}{0.5\textwidth}
+      \centering
+      \includegraphics[width=3.25in]{imgs/import-utility-csv.png}
+      \caption{}
+    \end{subfigure}%
+    \begin{subfigure}{0.5\textwidth}
+      \centering
+      \includegraphics[width=3.25in]{imgs/import-utility-excel.png}
+      \caption{}
+    \end{subfigure}
+  \caption { (a) Import Utility for a CSV using \texttt{readr} (b) Import Utility for an Excel file using \texttt{readxl}}
+\end{figure*}
+
+In the two figures above, the first box corresponds to the file location and has a button for you to browse for it. The import options varies depends on what file type you're trying to read in. If it's Excel, you need to specify which sheet and cells you want to import. Whereas for CSV, you specify delimiters and how quotes are handled (among other things). 
+
+The bottom box looks kind of like a code chunk and contains the import code. The code will automatically update based on the location and settings you set above. Before clicking the Import button on the bottom left, make sure to copy the code and paste it into the script. 
+
+\begin{appendices}
+\section{macOS: \latex Installation Error}
+\label{appendix:macos-error}
+
+If you run into an error, reach out to Gene!
+\end{appendices}
+\end{document}
