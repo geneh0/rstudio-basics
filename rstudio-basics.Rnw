@@ -70,7 +70,7 @@
 
 \begin{document}
 
-<<include = F>>=
+<<setup, include = F>>=
 library(knitr)
 hook_output <- knit_hooks$get("output")
 knit_hooks$set(output = function(x, options) {
@@ -92,6 +92,8 @@ knit_hooks$set(output = function(x, options) {
   x <- paste(c(x, ""), collapse = "\n")
   hook_output(x, options)
 })
+
+knitr::opts_knit$set(root.dir = here::here())
 @
 
 
@@ -321,7 +323,7 @@ Assume I have the first folder structure above and I want to import sf-housing-p
 
 <<output.lines = 5>>=
 # long version 
-read.csv('/Users/geneho/OneDrive/Berkeley/Course Materials/PHW142/sf-housing-prices.csv')
+read.csv('/Users/geneho/OneDrive/Berkeley/Course Materials/PHW142/rstudio-basics/sf-housing-prices.csv')
 
 # short version 
 read.csv('sf-housing-prices.csv')
